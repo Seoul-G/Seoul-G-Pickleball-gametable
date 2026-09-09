@@ -1,0 +1,866 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>피클볼 아메리카노 대진표</title>
+<style>
+:root{
+  --bg:#0f172a; --bg2:#111d33; --card:#1e293b; --card2:#263449; --line:#334155;
+  --txt:#f1f5f9; --muted:#94a3b8; --accent:#facc15; --accent2:#22c55e; --win:#4ade80;
+  --c1:#f59e0b; --c2:#38bdf8; --c3:#a78bfa;
+}
+*{box-sizing:border-box; margin:0; padding:0;}
+body{background:linear-gradient(160deg,var(--bg) 0%,var(--bg2) 60%,#0b1428 100%); color:var(--txt); font-family:'Segoe UI','Malgun Gothic','Apple SD Gothic Neo',sans-serif; min-height:100vh; padding:20px 16px 60px;}
+.wrap{max-width:1080px; margin:0 auto;}
+header{text-align:center; margin-bottom:24px;}
+header h1{font-size:clamp(24px,4vw,38px); letter-spacing:-1px; font-weight:800;}
+header h1 .em{color:var(--accent);}
+header p{color:var(--muted); margin-top:6px; font-size:14px;}
+header .ver{display:inline-block; font-size:12px; font-weight:800; color:#173a00; background:var(--accent); border-radius:99px; padding:3px 11px; margin-left:8px; vertical-align:middle; letter-spacing:.5px;}
+header .byline{margin-top:8px; font-size:12px; color:var(--muted); font-weight:600;}
+.card{background:var(--card); border:1px solid var(--line); border-radius:14px; padding:18px 20px; margin-bottom:18px; box-shadow:0 6px 18px rgba(0,0,0,.25);}
+.card h2{font-size:17px; margin-bottom:12px; display:flex; align-items:center; gap:8px;}
+.card h2 .badge{font-size:12px; background:rgba(250,204,21,.15); color:var(--accent); padding:2px 10px; border-radius:99px; font-weight:600;}
+.grid-set{display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:14px; align-items:end;}
+.field label{display:block; font-size:12px; color:var(--muted); margin-bottom:6px; font-weight:600;}
+.field input[type=number], .field input[type=text], .field select{width:100%; background:var(--bg); border:1px solid var(--line); color:var(--txt); border-radius:9px; padding:10px 12px; font-size:15px; outline:none;}
+.field input:focus, .field select:focus{border-color:var(--accent);}
+.btn{background:var(--accent); color:#1a1a00; border:none; border-radius:10px; padding:11px 22px; font-size:15px; font-weight:800; cursor:pointer; transition:.15s;}
+.btn:hover{background:#fde047; transform:translateY(-1px);}
+.btn.ghost{background:transparent; border:1px solid var(--line); color:var(--txt); font-weight:600;}
+.btn.ghost:hover{border-color:var(--accent); color:var(--accent);}
+.btns{display:flex; gap:10px; flex-wrap:wrap; margin-top:16px;}
+.seg{display:flex; gap:8px; flex-wrap:wrap; margin-bottom:14px;}
+.segbtn{background:var(--bg); border:1px solid var(--line); color:var(--muted); border-radius:10px; padding:10px 16px; font-size:14px; font-weight:700; cursor:pointer; transition:.15s;}
+.segbtn:hover{border-color:var(--accent); color:var(--txt);}
+.segbtn.active{background:rgba(250,204,21,.15); border-color:var(--accent); color:var(--accent);}
+.names{display:grid; grid-template-columns:repeat(auto-fill,minmax(130px,1fr)); gap:8px; margin-top:14px;}
+.names input{width:100%; background:var(--bg); border:1px solid var(--line); color:var(--txt); border-radius:8px; padding:8px 10px; font-size:13px; outline:none;}
+.names input:focus{border-color:var(--accent2);}
+.names .nlab{display:flex; align-items:center; gap:6px; position:relative;}
+.names .nlab .idx{font-size:11px; color:var(--muted); position:absolute; left:8px; top:50%; transform:translateY(-50%); pointer-events:none;}
+.names .nlab input{padding-left:30px;}
+#pairsBox{margin-top:14px; display:none;}
+#fixedPairBox{margin-top:14px; display:none;}
+.fpcell{display:flex; gap:8px; align-items:center; flex-wrap:wrap; margin-top:10px;}
+.fpcell select{background:var(--bg); border:1px solid var(--line); color:var(--txt); border-radius:8px; padding:8px 10px; font-size:13px; outline:none;}
+.fpcell select:focus{border-color:var(--accent);}
+.fpchips{display:flex; gap:8px; flex-wrap:wrap; margin-top:10px;}
+.fpchip{display:flex; align-items:center; gap:8px; font-size:12px; background:rgba(56,189,248,.1); border:1px solid rgba(56,189,248,.35); color:#7dd3fc; border-radius:99px; padding:5px 6px 5px 12px;}
+.fpchip .fp-del{background:transparent; border:none; color:#f87171; font-size:14px; cursor:pointer; font-weight:800;}
+#stats{display:flex; gap:8px; flex-wrap:wrap; margin-top:14px;}
+.chip{font-size:12px; background:rgba(34,197,94,.12); color:#86efac; border:1px solid rgba(34,197,94,.3); padding:4px 10px; border-radius:99px;}
+.chip.warn{background:rgba(250,204,21,.12); color:var(--accent); border-color:rgba(250,204,21,.3);}
+.round{border-left:4px solid var(--accent);}
+.round-head{display:flex; justify-content:space-between; align-items:center; gap:10px; margin-bottom:12px; flex-wrap:wrap;}
+.round-head .rnum{font-weight:800; font-size:15px; color:var(--accent);}
+.round-head .byes{font-size:12px; color:var(--muted);}
+.lock{font-size:11px; background:rgba(148,163,184,.15); color:var(--muted); border:1px solid var(--line); padding:2px 9px; border-radius:99px;}
+.courts{display:grid; grid-template-columns:repeat(auto-fit,minmax(250px,1fr)); gap:12px;}
+.match{border:1px solid var(--line); border-radius:11px; padding:12px; background:var(--card2);}
+.match .court-tag{font-size:11px; font-weight:800; margin-bottom:8px; display:inline-block; padding:2px 9px; border-radius:99px; letter-spacing:.4px;}
+.ct1{background:rgba(245,158,11,.15); color:var(--c1);} .ct2{background:rgba(56,189,248,.15); color:var(--c2);} .ct3{background:rgba(167,139,250,.15); color:var(--c3);}
+.teams{display:grid; grid-template-columns:1fr auto 1fr; align-items:stretch; gap:8px;}
+.team{border:1px dashed var(--line); border-radius:9px; padding:9px 8px; text-align:center; font-size:13px; font-weight:700; transition:.15s; line-height:1.5; display:flex; flex-direction:column; gap:6px; justify-content:center;}
+.team small{display:block; font-size:10px; color:var(--muted); font-weight:600; margin-top:2px;}
+.team.win{border:1.5px solid var(--win); background:rgba(74,222,128,.12); color:var(--win);}
+.team.win small{color:#86efac;}
+.team .wmark{font-size:10px; color:var(--win); min-height:12px; font-weight:800;}
+.team input.score{width:64px; margin:0 auto; background:var(--bg); border:1px solid var(--line); color:var(--txt); border-radius:7px; padding:6px 4px; font-size:16px; font-weight:800; text-align:center; outline:none;}
+.team input.score:focus{border-color:var(--accent);}
+.team input.score::placeholder{color:#475569; font-weight:600; font-size:11px;}
+.vs{color:var(--muted); font-size:11px; font-weight:800; align-self:center;}
+.legend{font-size:11px; color:var(--muted); margin-top:10px; line-height:1.7;}
+table{width:100%; border-collapse:collapse; font-size:13px;}
+th,td{padding:9px 8px; text-align:center; border-bottom:1px solid var(--line);}
+th{color:var(--muted); font-size:11px; text-transform:uppercase; letter-spacing:.4px;}
+tr.top td{background:rgba(250,204,21,.07);}
+td.name{text-align:left; font-weight:700;}
+td.rank{font-weight:800; color:var(--accent); width:40px;}
+.p{color:var(--muted);} .tall{color:var(--accent); font-weight:800;}
+.meta{font-size:12px; color:var(--muted); margin-top:12px; line-height:1.7;}
+.prow{display:flex; align-items:center; gap:10px; padding:8px 10px; border:1px solid var(--line); border-radius:9px; margin-bottom:8px; background:var(--bg);}
+.prow .pname{flex:1; font-weight:700; font-size:13px;}
+.prow .pname input{width:100%; background:var(--card); border:1px solid var(--line); color:var(--txt); border-radius:7px; padding:7px 10px; font-size:13px; outline:none;}
+.prow .pname input:focus{border-color:var(--accent2);}
+.prow .ptag{font-size:11px; color:var(--muted); white-space:nowrap;}
+.prow.disabled{opacity:.5;}
+.prow label{display:flex; align-items:center; gap:6px; font-size:12px; color:var(--muted); cursor:pointer; white-space:nowrap;}
+.prow input[type=checkbox]{width:16px; height:16px; accent-color:var(--accent2); cursor:pointer;}
+#editList{margin-top:14px; max-height:320px; overflow-y:auto; padding-right:4px;}
+.sharecode{width:100%; background:var(--bg); border:1px solid var(--line); color:var(--txt); border-radius:9px; padding:10px 12px; font-size:11px; outline:none; resize:vertical; min-height:56px; margin-top:12px; word-break:break-all;}
+.sharemsg{font-size:12px; color:#fde68a; margin-top:10px; line-height:1.7;}
+.notice{background:rgba(250,204,21,.08); border:1px solid rgba(250,204,21,.3); border-radius:10px; padding:10px 14px; font-size:12px; color:#fde68a; line-height:1.7; margin-bottom:18px;}
+footer{max-width:1080px; margin:26px auto 0; font-size:12px; color:var(--muted); line-height:1.8;}
+footer b{color:var(--txt);}
+@media print{
+  body{background:#fff; color:#000; padding:0;}
+  header, .setup, .editcard, .sharecard, .notice, .no-print, footer{display:none !important;}
+  .card{background:#fff; border:1px solid #999; box-shadow:none; page-break-inside:avoid;}
+  .team{border-color:#999; color:#000;}
+  .team.win{background:#e8f5e9; color:#000; border-color:#2e7d32;}
+  .team input.score{color:#000; border-color:#999; background:#fff;}
+  .round{border-left-color:#facc15;}
+  table{border:1px solid #999;}
+  th,td{border-bottom:1px solid #ccc; color:#000;}
+  td.name{color:#000;}
+  .p{color:#555;} .tall{color:#000;}
+  .lock{color:#555; border-color:#999;}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <h1>🥎 피클볼 <span class="em">아메리카노</span> 대진표 <span class="ver">v1.0</span></h1>
+  <p>로테이션(파트너 자동 교체) · 고정 파트너 모드 · 코트 자유 설정 · 중간 합류/이탈 · 점수 기록 &amp; 링크 공유</p>
+  <div class="byline">제작자: 김건희</div>
+</header>
+
+<div class="notice">📌 <b>진행 방식</b> — 각 경기에서 두 팀의 <b>스코어를 입력</b>하면 승리 팀이 자동 판정됩니다(승리 +2점, 패배 +1점). <b>로테이션 모드</b>는 라운드마다 파트너가 자동 교체되고, <b>고정 파트너 모드</b>는 같은 파트너끼리 계속 경기합니다. 인원 변경 시 "기회 대비 출전"이 균등해지도록 재생성되며, <b>공유 링크</b>로 대진표·점수를 주고받아 동기화할 수 있습니다.</div>
+
+<section class="card setup">
+  <h2>⚙️ 대회 설정</h2>
+  <div class="seg" id="modeSeg">
+    <button class="segbtn active" data-mode="r">🔄 로테이션 (파트너 자동 교체)</button>
+    <button class="segbtn" data-mode="h">🧩 부분 고정 (일부만 파트너 고정)</button>
+    <button class="segbtn" data-mode="f">🤝 고정 파트너 (같은 팀 유지)</button>
+  </div>
+  <div class="grid-set">
+    <div class="field"><label id="nLab">시작 참가 인원 (3~40명)</label><input type="number" id="nInput" min="3" max="40" value="8"></div>
+    <div class="field"><label>사용 코트 (직접 입력)</label><input type="number" id="cInput" min="1" max="9" value="2"></div>
+    <div class="field"><label>라운드 수 (자동 계산)</label><input type="text" id="rAuto" value="—" disabled style="opacity:.9"></div>
+    <div class="field" style="display:none" id="rManualWrap"><label>라운드 수 직접 지정 (1~60)</label><input type="number" id="rInput" min="1" max="60" value="7"></div>
+  </div>
+  <p class="legend">코트는 직접 입력 가능하며, 실제 사용은 <b>라운드별 활성 인원 ÷ 4</b>까지만 자동 적용됩니다. 고정 파트너 모드에서는 참가 인원이 <b>짝수</b>여야 합니다(홀수면 마지막 1명은 출전 불가).</p>
+  <div class="names" id="namesBox"></div>
+  <div id="pairsBox"></div>
+  <div id="fixedPairBox"></div>
+  <div class="btns">
+    <button class="btn" id="genBtn">🎲 대진표 생성</button>
+    <button class="btn ghost" id="reshuffleBtn">🔀 다시 섞기</button>
+    <button class="btn ghost" id="resetBtn">🗑️ 전체 초기화</button>
+    <button class="btn ghost no-print" id="printBtn" onclick="window.print()">🖨️ 인쇄</button>
+    <button class="btn ghost no-print" id="rAutoToggle" type="button">✏️ 라운드 수동 지정</button>
+  </div>
+  <div id="stats"></div>
+</section>
+
+<section class="card editcard" id="editCard">
+  <h2>✏️ 대진표 수정 <span class="badge">특정 라운드부터 합류 / 이탈</span></h2>
+  <div class="grid-set">
+    <div class="field"><label>인원 변경 적용 라운드</label><select id="chgRound"></select></div>
+    <div class="field"><label>안내</label><input type="text" id="chgInfo" value="라운드 1은 항상 유지됩니다" disabled style="opacity:.8"></div>
+  </div>
+  <div id="editList"></div>
+  <div class="btns">
+    <button class="btn" id="addPlayerBtn">➕ 참가자 추가</button>
+    <button class="btn" id="applyChgBtn">✅ 변경 적용 &amp; 재생성</button>
+  </div>
+  <div class="legend">변경 적용 시 해당 라운드 <b>이전 대진·기록은 🔒 유지</b>되고 이후 라운드만 재생성됩니다. "기회 대비 출전"이 모든 선수(또는 팀)에게 균등해지도록 자동 배분됩니다.</div>
+</section>
+
+<section class="card sharecard" id="shareCard">
+  <h2>📤 공유 &amp; 점수 동기화 <span class="badge">링크 전달 방식</span></h2>
+  <p class="legend"><b>사용 방법:</b> ① "공유 링크 복사"로 링크/코드를 메신저로 전송 → ② 받는 사람이 링크를 열거나 "링크·코드에서 불러오기"에 붙여넣으면 대진표·점수 표시 → ③ 점수를 입력한 뒤 다시 링크를 보내주면 동기화됩니다. (별도 서버 없이 상태를 링크에 담는 방식이라 <b>실시간 자동 동기화는 아닙니다</b>.)</p>
+  <div class="btns">
+    <button class="btn no-print" id="shareBtn">🔗 공유 링크 복사</button>
+    <button class="btn ghost no-print" id="importBtn">📥 링크·코드에서 불러오기</button>
+  </div>
+  <textarea class="sharecode" id="shareCodeBox" placeholder="공유 링크/코드가 여기에 표시됩니다. 필요하면 직접 복사해 메신저로 보내세요."></textarea>
+  <div class="sharemsg" id="shareMsg"></div>
+</section>
+
+<section class="card" id="schedCard">
+  <h2>📋 대진표 <span class="badge" id="schedBadge"></span></h2>
+  <div id="sched"></div>
+  <p class="legend">각 경기의 <b>두 팀 점수칸에 스코어를 입력</b>하면 승리 팀이 자동 결정됩니다(예: 11 – 8). 점수를 지우면 기록이 취소되고, 동점 입력은 인정되지 않습니다.</p>
+</section>
+
+<section class="card" id="standCard">
+  <h2>🏆 순위표 <span class="badge" id="standBadge">승리 +2 / 패배 +1</span></h2>
+  <div id="stand"></div>
+  <p class="meta"><b>출전/기회</b> = 실제로 뛴 라운드 수 ÷ 참가 가능했던 라운드 수(합류 시점·이탈 시점 자동 반영). 동점자는 승리 수 → 득실 → 이름 순으로 정렬됩니다.</p>
+</section>
+
+<footer>
+  <b>코트 설정</b> — 사용 코트 수를 직접 입력할 수 있습니다(라운드별 인원÷4 이하로 자동 제한).<br>
+  <b>모드</b> — 로테이션: 라운드마다 파트너·상대가 자동 교체 / 고정 파트너: 파트너는 그대로, 팀 대 팀 대진만 로테이션. 모드를 바꾸면 대진과 기록은 초기화됩니다.<br>
+  <b>운동 횟수 균등</b> — 매 라운드 "기회 대비 출전 비율이 낮은 선수(팀)"부터 우선 투입해 모든 참가자가 공평하게 운동합니다.<br>
+  <b>대진 알고리즘</b> — 파트너·상대 중복을 최소화하는 조합을 60회 탐색해 최적안을 채택합니다. 8명(2코트) 로테이션이면 전원이 서로 정확히 한 번씩 파트너가 되는 완전 대진이 생성됩니다.<br>
+  <b>동기화 한계</b> — 실시간 동기화가 아닌 링크 전달 방식입니다. 인터넷에 올려두면(예: Netlify Drop) 휴대폰에서도 링크만으로 쉽게 열 수 있습니다.
+  <b>v1.0 · 제작자: 김건희</b>
+</footer>
+</div>
+
+<script>
+"use strict";
+/* ================= 코어 알고리즘 ================= */
+function courtRule(N){var c=N<=6?1:(N<=16?2:3);return Math.min(c,Math.floor(N/4));}
+function mulberry32(seed){var a=seed>>>0;return function(){a|=0;a=(a+0x6D2B79F5)|0;var t=Math.imul(a^(a>>>15),1|a);t=(t+Math.imul(t^(t>>>7),61|t))^t;return((t^(t>>>14))>>>0)/4294967296;};}
+function sortPool(pool,P,G,a,rng,mode){var k=pool.map(function(p){return[mode==='g'?G[p]:P[a][p],rng(),p];});k.sort(function(x,y){return(x[0]-y[0])||(x[1]-y[1]);});return k.map(function(x){return x[2];});}
+function pairActive(active,P,G,rng){var pool=sortPool(active,P,G,null,rng,'g'),pairs=[];while(pool.length>0){var a=pool.shift();if(!pool.length)break;pool=sortPool(pool,P,G,a,rng,'p');pairs.push([a,pool.shift()]);}
+var ch=true;while(ch){ch=false;for(var i=0;i<pairs.length;i++)for(var j=i+1;j<pairs.length;j++){var a0=pairs[i][0],b0=pairs[i][1],c0=pairs[j][0],d0=pairs[j][1];var cur=P[a0][b0]+P[c0][d0];var alt1=P[a0][c0]+P[b0][d0],alt2=P[a0][d0]+P[b0][c0];if(alt1<cur&&alt1<=alt2){pairs[i]=[a0,c0];pairs[j]=[b0,d0];ch=true;}else if(alt2<cur){pairs[i]=[a0,d0];pairs[j]=[b0,c0];ch=true;}}}return pairs;}
+function assignCourts(pairs,O,rng){var C=pairs.length/2,courts=[];for(var c=0;c<C;c++)courts.push([]);var idxs=[];for(var i=0;i<pairs.length;i++)idxs.push(i);for(i=idxs.length-1;i>0;i--){var j=Math.floor(rng()*(i+1));var tmp=idxs[i];idxs[i]=idxs[j];idxs[j]=tmp;}
+for(var k=0;k<idxs.length;k++){var pair=pairs[idxs[k]],best=null;for(var cc=0;cc<C;cc++){if(courts[cc].length>=2)continue;var cost=0;if(courts[cc].length){var other=courts[cc][0];for(var x=0;x<pair.length;x++)for(var y=0;y<other.length;y++)cost+=O[pair[x]][other[y]];}if(best===null||cost<best[0])best=[cost,cc];}courts[best[1]].push(pair);}
+var ch=true;while(ch){ch=false;for(var c1=0;c1<C;c1++)for(var c2=c1+1;c2<C;c2++){if(courts[c1].length<2||courts[c2].length<2)continue;var p1=courts[c1][0],q1=courts[c1][1],p2=courts[c2][0],q2=courts[c2][1];function cc(p,q){var s=0;for(var x=0;x<p.length;x++)for(var y=0;y<q.length;y++)s+=O[p[x]][q[y]];return s;}
+var cur=cc(p1,q1)+cc(p2,q2),alt=cc(p1,p2)+cc(q1,q2);if(alt<cur){courts[c1]=[p1,p2];courts[c2]=[q1,q2];ch=true;}}}return courts;}
+/* 로테이션: 균등 배분 그리디 — 기회 대비 출전 비율이 낮은 선수부터 투입 */
+function genRound(r,roster,C,P,O,G,last,rng,avail){var effC=Math.min(C,Math.floor(roster.length/4));var courts=[];
+if(effC>=1){var keyed=[];
+for(var i=0;i<roster.length;i++){var p=roster[i];var fair=(avail[p]===0)?-1:(G[p]/(avail[p]+0.001));keyed.push([fair,last[p],rng(),p]);}
+keyed.sort(function(a,b){return(a[0]-b[0])||(a[1]-b[1])||(a[2]-b[2]);});
+var active=[];for(i=0;i<4*effC&&i<keyed.length;i++)active.push(keyed[i][3]);
+var pairs=pairActive(active,P,G,rng);courts=assignCourts(pairs,O,rng);
+for(i=0;i<pairs.length;i++){P[pairs[i][0]][pairs[i][1]]++;P[pairs[i][1]][pairs[i][0]]++;}
+for(i=0;i<courts.length;i++){var pa=courts[i][0],qa=courts[i][1];for(var x=0;x<2;x++)for(var y=0;y<2;y++){O[pa[x]][qa[y]]++;O[qa[y]][pa[x]]++;}}
+for(i=0;i<active.length;i++){G[active[i]]++;last[active[i]]=r;}}
+return courts;}
+/* 고정 파트너: 팀(pair) 단위 매치메이킹 — 파트너는 항상 유지 */
+function genRoundFixed(r,pairs,C,OP,GP,last,rng,avail){var effC=Math.min(C,Math.floor(pairs.length/2));var courts=[];
+if(effC>=1){var keyed=[];
+for(var k=0;k<pairs.length;k++){var p=pairs[k];var fair=(avail[p.i]===0)?-1:(GP[p.i]/(avail[p.i]+0.001));keyed.push([fair,last[p.i],rng(),p]);}
+keyed.sort(function(a,b){return(a[0]-b[0])||(a[1]-b[1])||(a[2]-b[2]);});
+var active=[];for(k=0;k<2*effC&&k<keyed.length;k++)active.push(keyed[k][3]);
+var pool=active.slice(),matches=[];
+while(pool.length>1){var a=pool.shift(),bestb=null,bestv=1e9;
+for(var m=0;m<pool.length;m++){var v=OP[a.i][pool[m].i]+rng()*0.001;if(v<bestv){bestv=v;bestb=m;}}
+matches.push([a,pool.splice(bestb,1)[0]]);}
+var ch=true;while(ch){ch=false;
+for(var i=0;i<matches.length;i++)for(var j=i+1;j<matches.length;j++){
+var m1=matches[i],m2=matches[j];var cur=OP[m1[0].i][m1[1].i]+OP[m2[0].i][m2[1].i];
+var alt1=OP[m1[0].i][m2[0].i]+OP[m1[1].i][m2[1].i];var alt2=OP[m1[0].i][m2[1].i]+OP[m1[1].i][m2[0].i];
+if(alt1<cur&&alt1<=alt2){matches[i]=[m1[0],m2[0]];matches[j]=[m1[1],m2[1]];ch=true;}
+else if(alt2<cur){matches[i]=[m1[0],m2[1]];matches[j]=[m1[1],m2[0]];ch=true;}}}
+var cA=[];for(i=0;i<effC;i++)cA.push([]);
+var idxs=[];for(i=0;i<matches.length;i++)idxs.push(i);
+for(i=idxs.length-1;i>0;i--){var jj=Math.floor(rng()*(i+1));var t=idxs[i];idxs[i]=idxs[jj];idxs[jj]=t;}
+for(i=0;i<idxs.length;i++){var mt=matches[idxs[i]];cA[i%effC]=[[mt[0].a,mt[0].b],[mt[1].a,mt[1].b]];}
+for(i=0;i<matches.length;i++){OP[matches[i][0].i][matches[i][1].i]++;OP[matches[i][1].i][matches[i][0].i]++;GP[matches[i][0].i]++;GP[matches[i][1].i]++;last[matches[i][0].i]=r;last[matches[i][1].i]=r;}}
+if(effC>=1)return cA;return courts;}
+function replayHist(rounds,upto,P,O,G,last){for(var r=0;r<upto;r++){var courts=rounds[r],seen={};
+for(var i=0;i<courts.length;i++){var pa=courts[i][0],qa=courts[i][1];for(var x=0;x<2;x++)for(var y=0;y<2;y++){O[pa[x]][qa[y]]++;O[qa[y]][pa[x]]++;}}
+for(i=0;i<courts.length;i++){var court=courts[i];for(var x2=0;x2<court.length;x2++){var pair=court[x2];P[pair[0]][pair[1]]++;P[pair[1]][pair[0]]++;if(!seen[pair[0]]){G[pair[0]]++;seen[pair[0]]=1;}if(!seen[pair[1]]){G[pair[1]]++;seen[pair[1]]=1;}}}
+for(var p=0;p<G.length;p++)if(seen[p])last[p]=r;}}
+function buildSchedule(opts){var R=opts.R,C=opts.C,pool=opts.poolSize,rosterFor=opts.rosterFor,locked=opts.locked||0;
+var stored=(opts.storedRounds||[]).slice(0,locked),trials=opts.trials||60,seed=(opts.seed===undefined)?(Math.floor(Math.random()*1e9)+1):opts.seed,i,j;
+var availFor=[],counts=[];for(i=0;i<pool;i++)counts.push(0);
+var totalSlots=0;
+for(var rr=0;rr<R;rr++){availFor.push(counts.slice());var rost=rosterFor(rr);
+var eff=Math.min(C,Math.floor(rost.length/4));totalSlots+=4*eff;
+for(var qi=0;qi<rost.length;qi++)counts[rost[qi]]++;}
+var sumAvail=0;for(i=0;i<pool;i++)sumAvail+=counts[i];
+function freshHist(){var P=[],O=[],G=[],last=[];for(i=0;i<pool;i++){P.push(new Array(pool).fill(0));O.push(new Array(pool).fill(0));G.push(0);last.push(-999);}return{P:P,O:O,G:G,last:last};}
+var base=freshHist();replayHist(stored,locked,base.P,base.O,base.G,base.last);
+var best=null;
+for(var t=0;t<trials;t++){var rng=mulberry32((seed+t*7919)>>>0);var P=base.P.map(function(r2){return r2.slice();});var O=base.O.map(function(r2){return r2.slice();});var G=base.G.slice(),last=base.last.slice();var rounds=stored.slice();
+for(var r=locked;r<R;r++){rounds.push(genRound(r,rosterFor(r),C,P,O,G,last,rng,availFor[r]));}
+var rep=0,orep=0;
+for(i=0;i<pool;i++)for(j=i+1;j<pool;j++){if(P[i][j]>1)rep+=P[i][j]-1;if(O[i][j]>1)orep+=O[i][j]-1;}
+var imb=0;
+if(sumAvail>0){var mn=1e9,mx=-1e9;for(i=0;i<pool;i++){var exp=totalSlots*counts[i]/sumAvail;var d=G[i]-exp;if(d<mn)mn=d;if(d>mx)mx=d;}imb=mx-mn;}
+else{imb=Math.max.apply(null,G)-Math.min.apply(null,G);}
+var sc=rep*10000+orep*100+imb*3;
+if(best===null||sc<best.sc)best={sc:sc,rounds:rounds,P:P,O:O,G:G,last:last,avail:counts};}
+return best;}
+function buildScheduleFixed(opts){var R=opts.R,C=opts.C,Pn=opts.pairCount,locked=opts.locked||0;
+var stored=(opts.storedRounds||[]).slice(0,locked),trials=opts.trials||60;
+var seed=(opts.seed===undefined)?(Math.floor(Math.random()*1e9)+1):opts.seed;
+var pToPair=opts.pToPair,pairActiveAt=opts.pairActiveAt,i,j;
+var avail=new Array(Pn).fill(0),totalSlots=0;
+for(var r=0;r<R;r++){var ap=pairActiveAt(r);var eff=Math.min(C,Math.floor(ap.length/2));totalSlots+=2*eff;
+for(var q=0;q<ap.length;q++)avail[ap[q].i]++;}
+function fresh(){var OP=[],GP=new Array(Pn).fill(0),last=new Array(Pn).fill(-999);
+for(i=0;i<Pn;i++)OP.push(new Array(Pn).fill(0));
+return{OP:OP,GP:GP,last:last};}
+function replay(rounds,upto,OP,GP,last){for(r=0;r<upto;r++){var courts=rounds[r];
+for(var c=0;c<courts.length;c++){var m=courts[c];var piA=pToPair(m[0][0]),piB=pToPair(m[1][0]);
+if(piA<0||piB<0)continue;OP[piA][piB]++;OP[piB][piA]++;GP[piA]++;GP[piB]++;last[piA]=r;last[piB]=r;}}}
+var base=fresh();replay(stored,locked,base.OP,base.GP,base.last);
+var best=null;
+for(var t=0;t<trials;t++){var rng=mulberry32((seed+t*7919)>>>0);
+var OP=base.OP.map(function(r2){return r2.slice();}),GP=base.GP.slice(),last=base.last.slice();
+var rounds=stored.slice();
+for(var r=locked;r<R;r++){rounds.push(genRoundFixed(r,pairActiveAt(r),C,OP,GP,last,rng,avail));}
+var rep=0;for(i=0;i<Pn;i++)for(j=i+1;j<Pn;j++)if(OP[i][j]>1)rep+=OP[i][j]-1;
+var sumA=0;for(i=0;i<Pn;i++)sumA+=avail[i];
+var imb=0;
+if(totalSlots>0&&sumA>0){var mn=1e9,mx=-1e9;for(i=0;i<Pn;i++){var exp=totalSlots*avail[i]/sumA;var d=GP[i]-exp;if(d<mn)mn=d;if(d>mx)mx=d;}imb=mx-mn;}
+else{imb=Math.max.apply(null,GP)-Math.min.apply(null,GP);}
+var sc=rep*10000+imb*3;
+if(best===null||sc<best.sc)best={sc:sc,rounds:rounds,GP:GP,OP:OP,avail:avail};}
+return best;}
+/* 부분 고정(하이브리드): 고정 페어는 하나의 팀 유닛, 나머지는 개인으로 로테이션 */
+function genRoundHybrid(r,roster,fixedPairs,C,P,O,G,last,rng,avail){
+var effC=Math.min(C,Math.floor(roster.length/4));if(effC<1)return[];
+var inRoster={};for(var i=0;i<roster.length;i++)inRoster[roster[i]]=1;
+var fset={};for(i=0;i<fixedPairs.length;i++){if(inRoster[fixedPairs[i][0]]&&inRoster[fixedPairs[i][1]]){fset[fixedPairs[i][0]]=1;fset[fixedPairs[i][1]]=1;}}
+var units=[];for(i=0;i<fixedPairs.length;i++){var f=fixedPairs[i];if(inRoster[f[0]]&&inRoster[f[1]])units.push({ps:[f[0],f[1]],fi:i});}
+var singles=[];for(i=0;i<roster.length;i++)if(!fset[roster[i]])singles.push(roster[i]);
+for(i=0;i<singles.length;i++)units.push({ps:[singles[i]],fi:-1});
+var target=4*effC;
+function ukey(u){var s=0;for(var q=0;q<u.ps.length;q++){var p=u.ps[q];s+=(avail[p]===0)?-1:(G[p]/(avail[p]+0.001));}return s/u.ps.length;}
+units.sort(function(a,b){var d=ukey(a)-ukey(b);if(d!==0)return d;return rng()-0.5;});
+var sel=[],sum=0;
+for(i=0;i<units.length;i++)units[i].picked=false;
+for(i=0;i<units.length&&sum<target;i++){var u=units[i];
+if(u.picked)continue;
+if(sum+u.ps.length<=target){sel.push(u);sum+=u.ps.length;u.picked=true;}
+else if(u.ps.length===2){for(var j=i+1;j<units.length;j++){if(!units[j].picked&&units[j].ps.length===1&&sum+1<=target){sel.push(units[j]);sum+=1;units[j].picked=true;break;}}if(sum===target)break;}}
+if(sum<target){for(i=0;i<units.length&&sum<target;i++){if(!units[i].picked&&units[i].ps.length===1){sel.push(units[i]);sum+=1;units[i].picked=true;}}}
+var fpTeams=[],freeP=[];
+for(i=0;i<sel.length;i++){if(sel[i].ps.length===2)fpTeams.push(sel[i].ps.slice());else freeP.push(sel[i].ps[0]);}
+while(freeP.length%2)freeP.pop();
+var freeTeams=[];
+if(freeP.length>1){var fpr=pairActive(freeP,P,G,rng);for(i=0;i<fpr.length;i++)freeTeams.push([fpr[i][0],fpr[i][1]]);}
+var teams=fpTeams.concat(freeTeams);
+var pool=teams.slice(),matches=[];
+while(pool.length>1){var a=pool.shift(),bestb=null,bestv=1e9;
+for(var m=0;m<pool.length;m++){var v=teamCost(a,pool[m],O)+rng()*0.001;if(v<bestv){bestv=v;bestb=m;}}
+matches.push([a,pool.splice(bestb,1)[0]]);}
+var ch=true;while(ch){ch=false;
+for(var x=0;x<matches.length;x++)for(var y=x+1;y<matches.length;y++){
+var m1=matches[x],m2=matches[y];var cur=teamCost(m1[0],m1[1],O)+teamCost(m2[0],m2[1],O);
+var alt1=teamCost(m1[0],m2[0],O)+teamCost(m1[1],m2[1],O);var alt2=teamCost(m1[0],m2[1],O)+teamCost(m1[1],m2[0],O);
+if(alt1<cur&&alt1<=alt2){matches[x]=[m1[0],m2[0]];matches[y]=[m1[1],m2[1]];ch=true;}
+else if(alt2<cur){matches[x]=[m1[0],m2[1]];matches[y]=[m1[1],m2[0]];ch=true;}}}
+var courts=[];for(i=0;i<Math.min(matches.length,effC);i++)courts.push([]);
+for(i=0;i<matches.length;i++)courts[i%courts.length]=[[matches[i][0][0],matches[i][0][1]],[matches[i][1][0],matches[i][1][1]]];
+var seenH={};
+for(i=0;i<matches.length;i++){var ta=matches[i][0],tb=matches[i][1];
+P[ta[0]][ta[1]]++;P[ta[1]][ta[0]]++;P[tb[0]][tb[1]]++;P[tb[1]][tb[0]]++;
+for(var q2=0;q2<2;q2++){if(!seenH[ta[q2]]){seenH[ta[q2]]=1;G[ta[q2]]++;last[ta[q2]]=r;}}
+for(q2=0;q2<2;q2++){if(!seenH[tb[q2]]){seenH[tb[q2]]=1;G[tb[q2]]++;last[tb[q2]]=r;}}
+for(var x2=0;x2<2;x2++)for(var y2=0;y2<2;y2++){O[ta[x2]][tb[y2]]++;O[tb[y2]][ta[x2]]++;}}
+return courts;}
+function teamCost(a,b,O){var s=0;for(var i=0;i<2;i++)for(var j=0;j<2;j++)s+=O[a[i]][b[j]];return s;}
+function buildScheduleHybrid(opts){var R=opts.R,C=opts.C,pool=opts.poolSize,rosterFor=opts.rosterFor,fixedPairs=opts.fixedPairs||[],locked=opts.locked||0;
+var stored=(opts.storedRounds||[]).slice(0,locked),trials=opts.trials||60,seed=(opts.seed===undefined)?(Math.floor(Math.random()*1e9)+1):opts.seed,i,j;
+var availFor=[],counts=[];for(i=0;i<pool;i++)counts.push(0);
+var totalSlots=0;
+for(var rr=0;rr<R;rr++){availFor.push(counts.slice());var rost=rosterFor(rr);
+var eff=Math.min(C,Math.floor(rost.length/4));totalSlots+=4*eff;
+for(var qi=0;qi<rost.length;qi++)counts[rost[qi]]++;}
+var sumAvail=0;for(i=0;i<pool;i++)sumAvail+=counts[i];
+function freshHist(){var P=[],O=[],G=[],last=[];for(i=0;i<pool;i++){P.push(new Array(pool).fill(0));O.push(new Array(pool).fill(0));G.push(0);last.push(-999);}return{P:P,O:O,G:G,last:last};}
+var base=freshHist();replayHist(stored,locked,base.P,base.O,base.G,base.last);
+var best=null;
+for(var t=0;t<trials;t++){var rng=mulberry32((seed+t*7919)>>>0);var P=base.P.map(function(r2){return r2.slice();});var O=base.O.map(function(r2){return r2.slice();});var G=base.G.slice(),last=base.last.slice();var rounds=stored.slice();
+for(var r=locked;r<R;r++){rounds.push(genRoundHybrid(r,rosterFor(r),fixedPairs,C,P,O,G,last,rng,availFor[r]));}
+var rep=0,orep=0;
+for(i=0;i<pool;i++)for(j=i+1;j<pool;j++){if(P[i][j]>1)rep+=P[i][j]-1;if(O[i][j]>1)orep+=O[i][j]-1;}
+var imb=0;
+if(sumAvail>0){var mn=1e9,mx=-1e9;for(i=0;i<pool;i++){var exp=totalSlots*counts[i]/sumAvail;var d=G[i]-exp;if(d<mn)mn=d;if(d>mx)mx=d;}imb=mx-mn;}
+else{imb=Math.max.apply(null,G)-Math.min.apply(null,G);}
+var sc=rep*10000+orep*100+imb*3;
+if(best===null||sc<best.sc)best={sc:sc,rounds:rounds,P:P,O:O,G:G,last:last,avail:counts};}
+return best;}
+function metrics(res){var P=res.P,O=res.O,G=res.G,N=P.length,R=res.rounds.length,i,j;
+var p_extra=0,p_max=0,o_extra=0,o_max=0,distinct=[],cMin=99,cMax=0;
+for(i=0;i<R;i++){if(res.rounds[i].length<cMin)cMin=res.rounds[i].length;if(res.rounds[i].length>cMax)cMax=res.rounds[i].length;}
+for(i=0;i<N;i++){var d=0;for(j=0;j<N;j++){if(j===i)continue;if(i<j&&P[i][j]>1){p_extra+=P[i][j]-1;if(P[i][j]>p_max)p_max=P[i][j];}if(i<j&&O[i][j]>1){o_extra+=O[i][j]-1;if(O[i][j]>o_max)o_max=O[i][j];}if(P[i][j]>0)d++;}distinct.push(d);}
+var mn=Math.min.apply(null,distinct),mx=Math.max.apply(null,distinct),sum=distinct.reduce(function(a,b){return a+b;},0);
+return{partner_repeats_total:p_extra,partner_max_pair:p_max,opp_repeats_total:o_extra,opp_max_pair:o_max,
+distinct_min:mn,distinct_max:mx,distinct_avg:sum/N,courts:[cMin,cMax],
+games:[Math.min.apply(null,G),Math.max.apply(null,G)]};}
+/* ================= 앱 상태 ================= */
+var state={version:4,mode:'r',N:8,C:2,R:7,manualR:false,nextId:8,players:[],pairs:[],fixedPairs:[],removals:[],pairRemovals:[],schedule:null,results:{},seed:12345,frozen:0,roomCode:'',devId:'d-'+Math.random().toString(36).slice(2,8)};
+window.__remoteApplying=false;
+Object.defineProperty(state,'roomCode',{configurable:true,get:function(){return state.__rc||'';},set:function(v){state.__rc=v||'';var ri=el&&el('roomInfo');if(ri){ri.innerHTML=v?('<span class="roomcode">'+v+'</span> <button class="btn ghost no-print" onclick="window.copyRoomCode&&window.copyRoomCode()" type="button">📋 코드 복사</button>'):'';}persist();}});
+var LS_KEY='pb_americano_v4';
+function el(id){return document.getElementById(id);}
+function playerById(id){for(var i=0;i<state.players.length;i++)if(state.players[i].id===id)return state.players[i];return null;}
+function nm(id){var p=playerById(id);return (p&&p.name)?p.name:('참가자'+(id+1));}
+function removedAtOrBefore(id,r){for(var i=0;i<state.removals.length;i++)if(state.removals[i].id===id&&state.removals[i].at<=r)return true;return false;}
+function pairRemovedBefore(pi,r){for(var i=0;i<state.pairRemovals.length;i++)if(state.pairRemovals[i].pi===pi&&state.pairRemovals[i].at<=r)return true;return false;}
+function activePairsAt(r){var out=[];
+for(var i=0;i<state.pairs.length;i++){var pr=state.pairs[i];if(pr.since>r)continue;if(pairRemovedBefore(i,r))continue;out.push({i:i,a:pr.a,b:pr.b});}
+return out;}
+function rosterAt(r){if(state.mode==='f'){var list=[];var ap=activePairsAt(r);for(var i=0;i<ap.length;i++)list.push(ap[i].a,ap[i].b);return list;}
+var list2=[];for(var j=0;j<state.players.length;j++){var p=state.players[j];if(p.since>r)continue;if(removedAtOrBefore(p.id,r))continue;list2.push(p.id);}return list2;}
+function poolFor(){var mx=0;for(var i=0;i<state.players.length;i++)if(state.players[i].id>=mx)mx=state.players[i].id+1;return Math.max(mx,1);}
+function eligibleRounds(id){var c=0;for(var r=0;r<state.R;r++){if(rosterAt(r).indexOf(id)>=0)c++;}return c;}
+function setState(patch){
+  if(patch&&typeof patch==='object'){try{Object.assign(state,patch);}catch(e){console.error('[setState]',e);}}
+  persist();
+}
+function __payloadV4(){
+  return {v:4,m:state.mode,N:state.N,C:state.C,R:state.R,manR:state.manualR?1:0,
+    pl:state.players.map(function(p){return[p.id,p.name,p.since];}),
+    rm:state.removals.slice(),
+    pr:state.pairs.map(function(p){return[p.a,p.b,p.since];}),
+    prm:state.pairRemovals.slice(),
+    fp:state.fixedPairs.map(function(f){return[f.a,f.b];}),
+    rd:state.schedule?state.schedule.rounds:[],
+    rs:JSON.parse(JSON.stringify(state.results||{}))};
+}
+function __syncLocalBroadcast(){
+  try{
+    var code=state.roomCode||'global';
+    var msg={t:Date.now(),dev:state.devId,code:code,payload:__payloadV4()};
+    if(window.__bcChannel){window.__bcChannel.postMessage(msg);}
+    var key='pb_sync_'+code;
+    localStorage.setItem(key,JSON.stringify(msg));
+    setTimeout(function(){try{localStorage.removeItem(key);}catch(e){}},120);
+  }catch(e){console.warn('[syncLocal]',e);}
+}
+window.applyRemotePayload=function(p){
+  if(!p)return;
+  window.__remoteApplying=true;
+  try{
+    if(typeof importState==='function')importState(p);
+    var s=el('syncMsg');if(s)s.textContent='🔄 다른 기기/창의 변경이 적용되었습니다.';
+    if(typeof renderAll==='function')renderAll();
+  }catch(e){console.error('[applyRemote]',e);}
+  finally{window.__remoteApplying=false;}
+};
+function persist(){
+  try{localStorage.setItem(LS_KEY,JSON.stringify(state));}catch(e){}
+  if(!window.__remoteApplying){
+    try{__syncLocalBroadcast();}catch(e){}
+  }
+  if(window.FbSync&&window.FbSync.push){try{window.FbSync.push();}catch(e){}}
+}
+function load(){try{var s=JSON.parse(localStorage.getItem(LS_KEY));if(s&&(s.version===3||s.version===4)&&s.schedule&&s.schedule.rounds&&s.players&&s.players.length){state=s;state.version=4;state.fixedPairs=state.fixedPairs||[];state.pairs=state.pairs||[];state.removals=state.removals||[];state.pairRemovals=state.pairRemovals||[];state.manualR=!!state.manualR;el('nInput').value=state.N;el('cInput').value=state.C;el('rInput').value=state.R;}}catch(e){}}
+function buildNameInputs(){var box=el('namesBox');box.innerHTML='';
+for(var i=0;i<state.players.length;i++){var p=state.players[i];var d=document.createElement('div');d.className='nlab';
+var idx=document.createElement('span');idx.className='idx';idx.textContent=(i+1)+'.';
+var inp=document.createElement('input');inp.type='text';inp.maxLength=12;inp.placeholder='참가자 '+(i+1);inp.value=p.name||'';inp.dataset.id=p.id;
+(function(pid){inp.addEventListener('input',function(){var pl=playerById(pid);if(pl){pl.name=this.value.trim();persist();renderAll();}});})(p.id);
+d.appendChild(idx);d.appendChild(inp);box.appendChild(d);}}
+function buildPairInputs(){var box=el('pairsBox');box.innerHTML='';
+var M=Math.floor(state.N/2);
+for(var t=0;t<M;t++){var row=document.createElement('div');row.className='prow';
+var tag=document.createElement('span');tag.className='ptag';tag.textContent='팀 '+(t+1);
+row.appendChild(tag);
+for(var s2=0;s2<2;s2++){var pid=2*t+s2;
+var pname=document.createElement('div');pname.className='pname';
+var inp=document.createElement('input');inp.type='text';inp.maxLength=12;inp.placeholder='파트너 '+(s2+1);
+var pl0=playerById(pid);inp.value=(pl0&&pl0.name)?pl0.name:'';
+(function(pp){inp.addEventListener('input',function(){var p2=playerById(pp);if(p2){p2.name=this.value.trim();persist();}});})(pid);
+pname.appendChild(inp);row.appendChild(pname);}
+box.appendChild(row);}
+if(state.N%2){var w=document.createElement('p');w.className='sharemsg';w.textContent='⚠️ 홀수 인원('+state.N+'명): 마지막 1명은 고정 파트너 모드에서 출전할 수 없습니다. 인원을 짝수로 맞춰주세요.';box.appendChild(w);}}
+function renderFixedPairUI(){var box=el('fixedPairBox');if(state.mode!=='h'){box.innerHTML='';return;}
+var paired={};for(var i=0;i<state.fixedPairs.length;i++){paired[state.fixedPairs[i].a]=1;paired[state.fixedPairs[i].b]=1;}
+var free=[];for(i=0;i<state.players.length;i++){if(!paired[state.players[i].id])free.push(state.players[i]);}
+var h='<p class="legend">🧩 <b>부분 고정</b> — 아래에서 파트너를 고정할 2명을 짝지어 주세요. 고정된 페어는 항상 한 팀으로 경기하고(절대 분리되지 않음), 나머지는 매 라운드 새 파트너로 로테이션됩니다. 페어를 추가/해제하면 대진표가 새로 생성됩니다(기록 초기화).</p>';
+h+='<div class="fpcell"><select id="fpSelA"></select><span style="color:var(--muted)">+</span><select id="fpSelB"></select><button class="btn ghost" id="fpAddBtn">➕ 페어 지정</button></div>';
+h+='<div class="fpchips" id="fpChips"></div>';
+box.innerHTML=h;
+var sa=el('fpSelA'),sb=el('fpSelB');
+for(i=0;i<state.players.length;i++){var p=state.players[i];
+if(paired[p.id])continue;
+var o=document.createElement('option');o.value=p.id;o.textContent=(p.name||('참가자'+(p.id+1)))+' ('+(p.id+1)+')';
+sa.appendChild(o);
+var o2=document.createElement('option');o2.value=p.id;o2.textContent=(p.name||('참가자'+(p.id+1)))+' ('+(p.id+1)+')';
+sb.appendChild(o2);}
+if(sa.options.length){sa.value=free[0].id;sb.value=free.length>1?free[1].id:free[0].id;}
+var chips=el('fpChips');
+for(i=0;i<state.fixedPairs.length;i++){var f=state.fixedPairs[i];
+var c=document.createElement('span');c.className='fpchip';
+c.textContent='🔒 '+(nm(f.a)||('참가자'+(f.a+1)))+' + '+(nm(f.b)||('참가자'+(f.b+1)));
+var d=document.createElement('button');d.className='fp-del';d.textContent='✕';d.dataset.fi=i;
+(function(fi){d.addEventListener('click',function(){state.fixedPairs.splice(fi,1);persist();
+if(state.schedule){state.seed=Math.floor(Math.random()*1e9);regenCurrent();state.results={};state.frozen=0;}
+syncModeUI();renderAll();});})(i);
+c.appendChild(d);chips.appendChild(c);}
+el('fpAddBtn').onclick=function(){var a=parseInt(el('fpSelA').value,10),b=parseInt(el('fpSelB').value,10);
+if(isNaN(a)||isNaN(b)||a===b){alert('서로 다른 두 선수를 선택해 주세요.');return;}
+for(var i=0;i<state.fixedPairs.length;i++){if((state.fixedPairs[i].a===a&&state.fixedPairs[i].b===b)||(state.fixedPairs[i].a===b&&state.fixedPairs[i].b===a)){alert('이미 지정된 페어입니다.');return;}}
+state.fixedPairs.push({a:a,b:b});persist();
+if(state.schedule){state.seed=Math.floor(Math.random()*1e9);regenCurrent();state.results={};state.frozen=0;}
+syncModeUI();renderAll();};}
+function updateSettings(){state.N=parseInt(el('nInput').value,10)||8;if(state.N<3)state.N=3;if(state.N>40)state.N=40;
+state.C=parseInt(el('cInput').value,10)||1;if(state.C<1)state.C=1;if(state.C>9)state.C=9;
+el('nInput').value=state.N;el('cInput').value=state.C;}
+/* 라운드 자동 계산: 로테이션/부분고정 = 인원-1, 전체고정 = 팀 라운드로빈 */
+function computeRounds(){var n=state.N;
+if(state.mode==='f'){var t=Math.max(1,Math.floor(n/2));return t%2===0?t-1:t;}
+return Math.max(1,Math.min(60,n-1));}
+function syncRoundUI(){if(!el('rAuto'))return;
+if(state.manualR){el('rAuto').style.display='none';el('rManualWrap').style.display='';el('rInput').value=state.R;el('rAutoToggle').textContent='↩️ 자동 계산 모드';}
+else{state.R=computeRounds();el('rAuto').style.display='';el('rManualWrap').style.display='none';el('rAuto').value='자동 '+state.R+'라운드';el('rAutoToggle').textContent='✏️ 라운드 수동 지정';}}
+function buildFreshRotate(){var inputs=el('namesBox').querySelectorAll('input');state.players=[];
+for(var i=0;i<state.N;i++){var v=(inputs[i]?inputs[i].value:'');state.players.push({id:i,name:v,since:0});}
+state.nextId=state.N;state.removals=[];}
+function buildFreshFixed(){var ins=el('pairsBox').querySelectorAll('input');state.players=[];
+for(var i=0;i<state.N;i++){var inp2=ins[i];state.players.push({id:i,name:inp2?inp2.value:'',since:0});}
+state.nextId=state.N;state.pairs=[];var M=Math.floor(state.N/2);
+for(var t=0;t<M;t++)state.pairs.push({a:2*t,b:2*t+1,since:0});
+state.pairRemovals=[];}
+function pToPairFn(){var mp={};for(var i=0;i<state.pairs.length;i++){mp[state.pairs[i].a]=i;mp[state.pairs[i].b]=i;}
+return function(pid){return(mp[pid]!==undefined)?mp[pid]:-1;};}
+function regenCurrent(){if(state.mode==='f'){state.schedule=buildScheduleFixed({R:state.R,C:state.C,pairCount:state.pairs.length,pToPair:pToPairFn(),pairActiveAt:activePairsAt,locked:0,storedRounds:[],seed:state.seed,trials:60});}
+else if(state.mode==='h'){state.schedule=buildScheduleHybrid({R:state.R,C:state.C,poolSize:poolFor(),rosterFor:rosterAt,fixedPairs:state.fixedPairs.map(function(f){return[f.a,f.b];}),locked:0,storedRounds:[],seed:state.seed,trials:60});}
+else{state.schedule=buildSchedule({R:state.R,C:state.C,poolSize:poolFor(),rosterFor:rosterAt,locked:0,storedRounds:[],seed:state.seed,trials:60});}}
+function generate(){updateSettings();syncRoundUI();
+if(state.manualR){var rr=parseInt(el('rInput').value,10);if(!isNaN(rr)&&rr>=1)state.R=Math.min(60,rr);}
+if(state.mode==='f'){if(state.N%2){alert('홀수 인원('+state.N+'명)은 고정 파트너 모드로 진행할 수 없습니다. 짝수로 맞춰주세요.');return;}
+buildFreshFixed();buildNameInputs();buildPairInputs();}
+else{buildFreshRotate();if(state.mode==='h'){state.fixedPairs=(state.fixedPairs||[]).filter(function(f){return f&&f.a<state.N&&f.b<state.N&&f.a!==f.b;});}buildNameInputs();}
+state.seed=Math.floor(Math.random()*1e9);
+regenCurrent();state.results={};state.frozen=0;persist();renderAll();}
+function rebuildFrom(k1){var stored=state.schedule.rounds.slice(0,k1);
+if(state.mode==='f'){state.schedule=buildScheduleFixed({R:state.R,C:state.C,pairCount:state.pairs.length,pToPair:pToPairFn(),pairActiveAt:activePairsAt,locked:k1,storedRounds:stored,seed:state.seed+Math.floor(Math.random()*1000),trials:60});}
+else if(state.mode==='h'){state.schedule=buildScheduleHybrid({R:state.R,C:state.C,poolSize:poolFor(),rosterFor:rosterAt,fixedPairs:state.fixedPairs.map(function(f){return[f.a,f.b];}),locked:k1,storedRounds:stored,seed:state.seed+Math.floor(Math.random()*1000),trials:60});}
+else{state.schedule=buildSchedule({R:state.R,C:state.C,poolSize:poolFor(),rosterFor:rosterAt,locked:k1,storedRounds:stored,seed:state.seed+Math.floor(Math.random()*1000),trials:60});}
+state.frozen=k1;
+var keys=Object.keys(state.results);for(var i=0;i<keys.length;i++){var rr=parseInt(keys[i].split('_')[0],10);if(rr>=k1)delete state.results[keys[i]];}
+persist();renderAll();}
+function playedCounts(){var cnt=[];for(var i=0;i<poolFor();i++)cnt.push(0);
+if(!state.schedule)return cnt;
+for(var r=0;r<state.schedule.rounds.length;r++){var courts=state.schedule.rounds[r];
+for(var c=0;c<courts.length;c++){var pa=courts[c][0],qa=courts[c][1];cnt[pa[0]]++;cnt[pa[1]]++;cnt[qa[0]]++;cnt[qa[1]]++;}}
+return cnt;}
+function renderAll(){syncModeUI();syncRoundUI();renderEditList();renderSchedule();renderStandings();renderStats();}
+function syncModeUI(){var btns=document.querySelectorAll('#modeSeg .segbtn');
+for(var i=0;i<btns.length;i++)btns[i].classList.toggle('active',btns[i].dataset.mode===state.mode);
+var isF=state.mode==='f',isH=state.mode==='h';
+el('namesBox').style.display=isF?'none':'grid';
+el('pairsBox').style.display=isF?'block':'none';
+el('fixedPairBox').style.display=isH?'block':'none';
+el('nLab').textContent=isF?'참가 인원 (짝수, 4~40명)':'시작 참가 인원 (3~40명)';
+el('addPlayerBtn').textContent=isF?'➕ 파트너 팀 추가':'➕ 참가자 추가';
+if(isH)renderFixedPairUI();syncRoundUI();}
+function renderStats(){var box=el('stats');if(!state.schedule)return;
+var pc=playedCounts();var mn=99,mx=-1;
+for(var i=0;i<state.players.length;i++){var g=pc[state.players[i].id]||0;if(g<mn)mn=g;if(g>mx)mx=g;}
+if(state.mode==='f'){var parts=['출전 최소~최대 '+mn+'~'+mx+'회','팀 '+state.pairs.length+'팀','코트 '+'1~'+state.C+'개'];
+box.innerHTML=parts.map(function(t){return '<span class="chip">'+t+'</span>';}).join('');
+box.insertAdjacentHTML('beforeend','<span class="chip">🤝 고정 파트너 모드</span>');
+box.insertAdjacentHTML('beforeend','<span class="chip">⚖️ 팀별 균등 배분 적용</span>');
+return;}
+if(state.mode==='h'){var mh=metrics(state.schedule);
+var parts=['출전 최소~최대 '+mn+'~'+mx+'회','고정 페어 '+state.fixedPairs.length+'개','코트 '+mh.courts[0]+'~'+mh.courts[1]+'개'];
+box.innerHTML=parts.map(function(t){return '<span class="chip">'+t+'</span>';}).join('');
+box.insertAdjacentHTML('beforeend','<span class="chip">🧩 부분 고정 모드</span>');
+box.insertAdjacentHTML('beforeend','<span class="chip">⚖️ 균등 배분(출전/기회) 적용</span>');
+return;}
+var m=metrics(state.schedule);
+var parts=['출전 최소~최대 '+mn+'~'+mx+'회','파트너 중복 '+m.partner_repeats_total+'회','코트 '+m.courts[0]+'~'+m.courts[1]+'개'];
+box.innerHTML=parts.map(function(t){return '<span class="chip'+(t.indexOf('중복')>=0&&m.partner_repeats_total>0?' warn':'')+'">'+t+'</span>';}).join('');
+box.insertAdjacentHTML('beforeend','<span class="chip">⚖️ 균등 배분(출전/기회) 적용</span>');
+var allSame=true;for(var j=0;j<state.players.length;j++)if(state.players[j].since!==0)allSame=false;
+if(allSame&&state.removals.length===0&&m.distinct_min===state.players.length-1&&m.distinct_max===state.players.length-1&&m.partner_repeats_total===0)
+box.insertAdjacentHTML('beforeend','<span class="chip">✨ 완전 대진 — 전원이 서로 1번씩 파트너</span>');}
+function renderSchedule(){var box=el('sched');if(!state.schedule){box.innerHTML='';return;}
+var R=state.schedule.rounds;el('schedBadge').textContent=state.players.length+'명'+(state.mode==='f'?'('+state.pairs.length+'팀)':'')+' · 코트 설정 '+state.C+' · '+R.length+'라운드';
+var h='';var ctag=['ct1','ct2','ct3'];
+for(var r=0;r<R.length;r++){var courts=R[r];var played={};var k;
+for(k=0;k<courts.length;k++){var pa=courts[k][0],qa=courts[k][1];played[pa[0]]=1;played[pa[1]]=1;played[qa[0]]=1;played[qa[1]]=1;}
+var roster=rosterAt(r);var byes=[];for(k=0;k<roster.length;k++)if(!played[roster[k]])byes.push(nm(roster[k]));
+h+='<div class="card round"><div class="round-head"><span class="rnum">라운드 '+(r+1)+(r<state.frozen?' <span class="lock">🔒 확정됨</span>':'')+'</span><span class="byes">🪑 대기: '+(byes.length?byes.join(', '):'없음')+' · 출전 '+roster.length+'명</span></div><div class="courts">';
+for(k=0;k<courts.length;k++){var p=courts[k][0],q=courts[k][1];var key=r+'_'+k;var res=state.results[key];
+var won0=res&&res.a>res.b,won1=res&&res.b>res.a;var a0=res?res.a:'',b0=res?res.b:'';
+h+='<div class="match"><span class="court-tag '+(ctag[k%3])+'">코트 '+(k+1)+'</span><div class="teams">';
+h+='<div class="team'+(won0?' win':'')+'" data-r="'+r+'" data-c="'+k+'" data-t="0"><div>'+nm(p[0])+' + '+nm(p[1])+'</div><input type="number" class="score" data-r="'+r+'" data-c="'+k+'" data-t="0" min="0" max="99" placeholder="점수" value="'+a0+'"><div class="wmark">'+(won0?'🏆 승리':'')+'</div></div>';
+h+='<span class="vs">VS</span>';
+h+='<div class="team'+(won1?' win':'')+'" data-r="'+r+'" data-c="'+k+'" data-t="1"><div>'+nm(q[0])+' + '+nm(q[1])+'</div><input type="number" class="score" data-r="'+r+'" data-c="'+k+'" data-t="1" min="0" max="99" placeholder="점수" value="'+b0+'"><div class="wmark">'+(won1?'🏆 승리':'')+'</div></div>';
+h+='</div></div>';}
+h+='</div></div>';}
+box.innerHTML=h;
+var ins=box.querySelectorAll('input.score');
+for(var t=0;t<ins.length;t++){ins[t].addEventListener('input',function(){
+var r=+this.dataset.r,c=+this.dataset.c;
+var pair=box.querySelectorAll('input.score[data-r="'+r+'"][data-c="'+c+'"]');
+var va=pair[0].value,vb=pair[1].value;var a=parseInt(va,10),b=parseInt(vb,10);
+var key=r+'_'+c;
+if(va!==''&&vb!==''&&!isNaN(a)&&!isNaN(b)&&a!==b){state.results[key]={a:a,b:b};}else{delete state.results[key];}
+persist();renderSchedule();renderStandings();});}}
+function renderStandings(){var box=el('stand');if(!state.schedule){box.innerHTML='';return;}
+var pool=poolFor();var pts=new Array(pool).fill(0),wins=new Array(pool).fill(0),games=new Array(pool).fill(0),pf=new Array(pool).fill(0),pa2=new Array(pool).fill(0);
+var pc=playedCounts();
+var keys=Object.keys(state.results);
+for(var i=0;i<keys.length;i++){var kk=keys[i].split('_');var r=+kk[0],c=+kk[1];var court=state.schedule.rounds[r][c];var res=state.results[keys[i]];
+var w=res.a>res.b?0:1;var wa=res.a,wb=res.b;
+var wp=court[w],lp=court[1-w];
+for(var j=0;j<2;j++){pts[wp[j]]+=2;wins[wp[j]]++;games[wp[j]]++;pts[lp[j]]+=1;games[lp[j]]++;}
+for(j=0;j<2;j++){pf[wp[j]]+=wa;pa2[wp[j]]+=wb;pf[lp[j]]+=wb;pa2[lp[j]]+=wa;}}
+var rows=[];for(var p2=0;p2<state.players.length;p2++){var pl=state.players[p2];
+rows.push({id:pl.id,name:nm(pl.id),pts:pts[pl.id]||0,w:wins[pl.id]||0,g:games[pl.id]||0,pf:pf[pl.id]||0,pa:pa2[pl.id]||0,played:pc[pl.id]||0,er:eligibleRounds(pl.id),since:pl.since});}
+rows.sort(function(a,b){return b.pts-a.pts||b.w-a.w||(b.pf-b.pa)-(a.pf-a.pa)||a.name.localeCompare(b.name,'ko');});
+var h='<table><thead><tr><th>순위</th><th>이름</th><th>출전/기회</th><th>승</th><th>패</th><th>득실</th><th>점수</th></tr></thead><tbody>';
+for(var x=0;x<rows.length;x++){var row=rows[x];var pd=row.pf-row.pa;
+h+='<tr'+(x<3?' class="top"':'')+'><td class="rank">'+(x+1)+'</td><td class="name">'+row.name.replace(/</g,'&lt;')+(row.since>0?' <small class="ptag">(R'+(row.since+1)+' 합류)</small>':'')+'</td><td class="p">'+row.played+'/'+row.er+'</td><td>'+row.w+'</td><td class="p">'+(row.g-row.w)+'</td><td class="p">'+(pd>0?'+':'')+pd+'</td><td class="tall">'+row.pts+'</td></tr>';}
+h+='</tbody></table>';box.innerHTML=h;
+el('standBadge').textContent='승리 +2 / 패배 +1 · '+keys.length+'경기 기록됨';}
+/* ================= 인원 변경 패널 ================= */
+function fillChgSelect(){var sel=el('chgRound');var cur=parseInt(sel.value,10)||state.frozen+1;
+sel.innerHTML='';var from=Math.max(2,state.frozen+1);if(from>state.R)from=state.R;
+for(var r=from;r<=state.R;r++){var o=document.createElement('option');o.value=r;o.textContent='라운드 '+r+'부터';sel.appendChild(o);}
+if(sel.options.length){var has=false;for(var i=0;i<sel.options.length;i++)if(+sel.options[i].value===cur)has=true;sel.value=has?cur:from;}}
+function renderEditList(){fillChgSelect();var sel=el('chgRound');var k=parseInt(sel.value,10)||2;var k1=k-1;if(k1>state.R-1)k1=state.R-1;
+var box=el('editList');box.innerHTML='';
+if(state.mode==='f'){
+for(var t=0;t<state.pairs.length;t++){var pr=state.pairs[t];
+if(pr.since>k1)continue;
+var row=document.createElement('div');row.className='prow';row.dataset.pi=t;
+var remEarly=pairRemovedBefore(t,k1-1);
+var tag=document.createElement('span');tag.className='ptag';
+tag.textContent=(pr.since===k1)?'🆕 이 라운드부터 합류':(remEarly?'❌ R'+(k1+1)+' 이전 제외':'');
+row.appendChild(tag);
+var pname=document.createElement('div');pname.className='pname';
+pname.textContent='팀 '+(t+1)+': '+((nm(pr.a)||'?')+' & '+(nm(pr.b)||'?'));
+row.appendChild(pname);
+if(!remEarly){var lab=document.createElement('label');
+var cb=document.createElement('input');cb.type='checkbox';cb.checked=!pairRemovedBefore(t,k1);
+lab.appendChild(cb);lab.appendChild(document.createTextNode('이 라운드부터 참가'));
+row.appendChild(lab);}else{row.classList.add('disabled');}
+box.appendChild(row);}
+el('chgInfo').value='라운드 '+(k1+1)+'~'+state.R+' 재생성 · 이전 라운드는 🔒 유지';
+return;}
+for(var i=0;i<state.players.length;i++){var p=state.players[i];
+if(p.since>k1)continue;
+var row2=document.createElement('div');row2.className='prow';row2.dataset.id=p.id;
+var remEarly2=removedAtOrBefore(p.id,k1-1);
+var remHere=removedAtOrBefore(p.id,k1);
+var pname2=document.createElement('div');pname2.className='pname';
+var inp=document.createElement('input');inp.type='text';inp.maxLength=12;inp.value=p.name||'';
+(function(pid){inp.addEventListener('input',function(){var pl=playerById(pid);if(pl){pl.name=this.value.trim();persist();}});})(p.id);
+pname2.appendChild(inp);row2.appendChild(pname2);
+var tag2=document.createElement('span');tag2.className='ptag';
+if(p.since===k1)tag2.textContent='🆕 이 라운드부터 합류';
+else if(remEarly2)tag2.textContent='❌ R'+(k1+1)+' 이전 제외';
+else tag2.textContent='';
+row2.appendChild(tag2);
+if(!remEarly2){var lab2=document.createElement('label');
+var cb2=document.createElement('input');cb2.type='checkbox';cb2.checked=!remHere;
+lab2.appendChild(cb2);lab2.appendChild(document.createTextNode('이 라운드부터 참가'));
+row2.appendChild(lab2);}else{row2.classList.add('disabled');}
+box.appendChild(row2);}
+el('chgInfo').value='라운드 '+(k1+1)+'~'+state.R+' 재생성 · 이전 라운드는 🔒 유지';}
+function applyChange(){var k=parseInt(el('chgRound').value,10)||state.R;var k1=Math.max(1,Math.min(k-1,state.R-1));
+if(state.mode==='f'){
+var rows=el('editList').querySelectorAll('.prow');
+for(var i=0;i<rows.length;i++){var pi=+rows[i].dataset.pi;var cb=rows[i].querySelector('input[type=checkbox]');if(!cb)continue;
+if(cb.checked){state.pairRemovals=state.pairRemovals.filter(function(x){return !(x.pi===pi&&x.at===k1);});}
+else{if(!pairRemovedBefore(pi,k1-1))state.pairRemovals.push({pi:pi,at:k1});}}
+rebuildFrom(k1);return;}
+var rows2=el('editList').querySelectorAll('.prow');
+for(var j=0;j<rows2.length;j++){var pid=+rows2[j].dataset.id;var cb3=rows2[j].querySelector('input[type=checkbox]');if(!cb3)continue;
+if(cb3.checked){state.removals=state.removals.filter(function(x){return !(x.id===pid&&x.at===k1);});}
+else if(!removedAtOrBefore(pid,k1-1)){state.removals.push({at:k1,id:pid});}}
+rebuildFrom(k1);}
+/* ================= 공유 & 동기화 ================= */
+function enc64(str){return btoa(unescape(encodeURIComponent(str))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');}
+function dec64(s){s=s.replace(/-/g,'+').replace(/_/g,'/');while(s.length%4)s+='=';return decodeURIComponent(escape(atob(s)));}
+function buildShare(){var obj={v:3,m:state.mode,C:state.C,R:state.R,pl:state.players.map(function(p){return[p.id,p.name,p.since];}),rm:state.removals,pr:state.pairs.map(function(p){return[p.a,p.b,p.since];}),prm:state.pairRemovals.map(function(x){return[x.pi,x.at];}),fp:state.fixedPairs.map(function(f){return[f.a,f.b];}),manR:state.manualR?1:0,rd:state.schedule?state.schedule.rounds:[],rs:state.results};
+return 'PB3'+enc64(JSON.stringify(obj));}
+function decodeShare(str){str=str.trim();var i=str.indexOf('PB3');if(i<0)throw new Error('코드 형식이 아닙니다');var data=str.slice(i+3);return JSON.parse(dec64(data));}
+function importState(obj){if(!obj||obj.v!==3||!obj.pl||!Array.isArray(obj.rd))throw new Error('유효하지 않은 공유 데이터');
+state.mode=(obj.m==='f'||obj.m==='h')?obj.m:'r';state.C=obj.C||2;state.R=obj.R||1;state.manualR=!!obj.manR;
+state.players=obj.pl.map(function(x){return{id:x[0],name:x[1]||'',since:x[2]||0};});
+state.removals=(obj.rm||[]).map(function(x){return{id:x.id,at:x.at};});
+state.pairs=(obj.pr||[]).map(function(x){return{a:x[0],b:x[1],since:x[2]||0};});
+state.pairRemovals=(obj.prm||[]).map(function(x){return{pi:x[0],at:x[1]};});
+state.fixedPairs=(obj.fp||[]).map(function(x){return{a:x[0],b:x[1]};});
+state.schedule={rounds:obj.rd};state.results=obj.rs||{};state.frozen=0;state.N=state.players.length;
+var pb=poolFor(),P=[],O=[],G=[],last=[];for(var k2=0;k2<pb;k2++){P.push(new Array(pb).fill(0));O.push(new Array(pb).fill(0));G.push(0);last.push(-999);}
+replayHist(state.schedule.rounds,state.R,P,O,G,last);state.schedule.P=P;state.schedule.O=O;state.schedule.G=G;state.schedule.last=last;
+var mx=0;for(var i=0;i<state.players.length;i++)if(state.players[i].id>=mx)mx=state.players[i].id+1;state.nextId=Math.max(mx,state.N);
+el('nInput').value=state.N;el('cInput').value=state.C;el('rInput').value=state.R;
+persist();syncModeUI();buildNameInputs();if(state.mode==='f')buildPairInputs();renderAll();}
+function shareNow(){if(!state.schedule){el('shareMsg').textContent='먼저 대진표를 생성해 주세요.';return;}
+var code=buildShare();var box=el('shareCodeBox');box.value=code;
+var msg='대진표+점수 '+Object.keys(state.results).length+'경기 기록이 링크에 담겼습니다. 아래 코드를 복사해 메신저로 보내세요. 받는 사람은 앱의 "📥 링크·코드에서 불러오기"에 붙여넣으면 됩니다.';
+var full=(location.protocol==='http:'||location.protocol==='https:')?(location.href.split('#')[0]+'#'+code):'';
+if(full){box.value=full;msg='공유 링크가 생성되었습니다. 링크를 메신저로 보내면 받는 사람이 바로 열 수 있어요. (브라우저 주소창에 표시된 링크를 복사해도 됩니다.)';}
+try{navigator.clipboard.writeText(box.value).then(function(){el('shareMsg').textContent=msg;}).catch(function(){el('shareMsg').textContent=msg+' (자동 복사 실패 시 코드를 직접 복사하세요)';});}catch(e){el('shareMsg').textContent=msg;}
+return code;}
+function importFromInput(){var v=prompt('공유 링크 또는 코드를 붙여넣으세요:');if(!v)return;
+try{var obj=decodeShare(v);importState(obj);el('shareMsg').textContent='✅ 불러오기 완료 — 대진표와 점수가 적용되었습니다.';}
+catch(e){el('shareMsg').textContent='⚠️ 불러오기 실패: '+e.message+' (코드가 중간에 잘렸을 수 있습니다)';}}
+/* ================= 이벤트 ================= */
+el('genBtn').addEventListener('click',generate);
+el('reshuffleBtn').addEventListener('click',function(){updateSettings();state.seed=Math.floor(Math.random()*1e9);state.results={};state.frozen=0;regenCurrent();persist();renderAll();});
+el('resetBtn').addEventListener('click',function(){if(!confirm('모든 참가자·대진·기록을 지우고 초기화할까요?'))return;generate();});
+el('nInput').addEventListener('change',function(){updateSettings();generate();});
+el('cInput').addEventListener('change',function(){updateSettings();generate();});
+el('rInput').addEventListener('change',function(){updateSettings();generate();});
+el('rAutoToggle').addEventListener('click',function(){state.manualR=!state.manualR;persist();syncRoundUI();if(state.schedule){state.seed=Math.floor(Math.random()*1e9);state.results={};state.frozen=0;regenCurrent();renderAll();persist();}});
+el('addPlayerBtn').addEventListener('click',function(){var k=parseInt(el('chgRound').value,10)||2;var k1=Math.max(0,k-1);
+if(state.mode==='f'){var a=state.nextId++,b=state.nextId++;
+state.players.push({id:a,name:'',since:k1},{id:b,name:'',since:k1});
+state.pairs.push({a:a,b:b,since:k1});}
+else{var id=state.nextId++;state.players.push({id:id,name:'',since:k1});}
+persist();buildNameInputs();if(state.mode==='f')buildPairInputs();fillChgSelect();renderEditList();renderAll();});
+el('applyChgBtn').addEventListener('click',applyChange);
+el('chgRound').addEventListener('change',function(){renderEditList();});
+el('shareBtn').addEventListener('click',shareNow);
+el('importBtn').addEventListener('click',importFromInput);
+el('modeSeg').addEventListener('click',function(e){var b=e.target.closest('.segbtn');if(!b)return;var m=b.dataset.mode;
+if(m===state.mode)return;
+if(state.schedule&&state.schedule.rounds.length){if(!confirm('모드를 바꾸면 기존 대진표와 기록이 초기화되고 새로 생성됩니다. 계속할까요?'))return;}
+state.mode=m;persist();
+if(m==='f'){el('nInput').value=state.N%2?state.N+1:state.N;updateSettings();}
+generate();});
+/* ================= 시작 ================= */
+load();
+(function(){var h=location.hash||'';if(h.indexOf('PB3')>=0){try{var obj=decodeShare(h.replace(/^#/,''));importState(obj);return;}catch(e){console.warn('hash import fail',e);}}})();
+syncModeUI();
+buildNameInputs();
+if(state.mode==='f')buildPairInputs();
+if(!state.schedule||!state.players.length){updateSettings();
+if(state.mode==='f')buildPairInputs();
+generate();}else{renderAll();}
+</script>
+<script>
+/* ================= 실시간 동기화 브리지 ================= */
+(function(){
+  function showMsg(m){var s=el('syncMsg');if(s)s.textContent=m;}
+  window.copyRoomCode=function(){try{navigator.clipboard.writeText(state.roomCode||'');showMsg('📋 방 코드 '+(state.roomCode||'')+' 복사됨');}catch(e){}};
+  function bootSync(){
+    try{window.__bcChannel=new BroadcastChannel('pb-room');}catch(e){window.__bcChannel=null;}
+    if(window.__bcChannel){
+      window.__bcChannel.addEventListener('message',function(ev){
+        var d=ev.data;if(!d||!d.payload)return;
+        var cur=state.roomCode||'global';
+        if(d.code!==cur)return;
+        if(d.dev===state.devId)return;
+        applyRemotePayload(d.payload);
+      });
+    }
+    window.addEventListener('storage',function(e){
+      if(!e.key||e.key.indexOf('pb_sync_')!==0)return;
+      var cur=state.roomCode||'global';
+      if(e.key!=='pb_sync_'+cur)return;
+      var d;try{d=JSON.parse(e.newValue);}catch(x){return;}
+      if(!d||d.dev===state.devId)return;
+      applyRemotePayload(d.payload);
+    });
+    function updateStatus(){
+      var st=el('syncStatus');if(!st)return;
+      try{
+        if(window.FbSync&&window.FbSync.configured){
+          st.className='sync-status sync-info';
+          st.textContent='☁️ Firebase 연결됨 — 다른 네트워크/기기에서도 자동 동기화 (방 코드: '+(state.roomCode||'없음')+')';
+        }else{
+          st.className='sync-status sync-info';
+          st.textContent='🔄 실시간 동기화 켜짐 — 같은 사이트의 다른 탭·창·폰은 즉시 반영됩니다. 다른 네트워크의 기기까지 동기화하려면 Firebase 설정(setup 가이드 STEP 3)을 붙여넣으세요.';
+        }
+      }catch(e){}
+    }
+    setInterval(updateStatus,1500);updateStatus();
+    // 방 만들기/참가 버튼 자동 연결
+    var cb=el('roomCreateBtn');if(cb&&!cb.__wired){cb.addEventListener('click',function(){
+      try{
+        if(!window.FbSync){showMsg('동기화 모듈이 아직 로드되지 않았습니다 (잠시 후 다시 시도).');return;}
+        if(typeof window.FbSync.create==='function'){
+          var code=window.FbSync.create();
+          if(code){state.roomCode=code;showMsg('✅ 방이 만들어졌습니다. 코드 '+code+' 를 공유하세요.');}
+        }
+      }catch(e){alert('방 만들기 오류: '+e.message);}
+    });cb.__wired=true;}
+    var jb=el('roomJoinBtn');if(jb&&!jb.__wired){jb.addEventListener('click',function(){
+      var v=prompt('방 코드 입력 (예: A1B2C):');if(!v)return;
+      try{
+        if(!window.FbSync){showMsg('동기화 모듈이 아직 로드되지 않았습니다.');return;}
+        if(typeof window.FbSync.join==='function'){
+          var ok=window.FbSync.join(v);
+          if(ok){state.roomCode=v;showMsg('✅ 방에 참가했습니다. 다른 기기의 데이터가 잠시 후 합쳐집니다.');}
+        }
+      }catch(e){alert('방 참가 오류: '+e.message);}
+    });jb.__wired=true;}
+  }
+  function safeStart(){try{bootSync();}catch(e){console.error('[syncBridge]',e);}}
+  if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded',safeStart);}else{safeStart();}
+  window.addEventListener('load',safeStart);
+})();
+</script>
+<script type="module">
+/* ================= 파이어베이스 실시간 동기화 (선택적) ================= */
+/* setup 가이드 STEP 3 — 아래 6곳의 firebaseConfig를 본인 Firebase 콘솔에서 복사한 값으로 교체하면
+   다른 네트워크/다른 기기에서도 진짜 실시간 자동 동기화가 켜집니다.
+   그대로 두면 BroadcastChannel 모드로만 동작합니다(같은 사이트의 다른 탭·창·폰). */
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js';
+import { getDatabase, ref, set, onValue, onDisconnect, off, serverTimestamp } from 'https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js';
+const firebaseConfig = {
+  apiKey: "AIzaSyDtpmEfjmaSvG1gL7GqzibNMZKdeqRY5vw",
+  authDomain: "seoul-g-pb1.firebaseapp.com",
+  databaseURL: "https://seoul-g-pb1-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "seoul-g-pb1",
+  storageBucket: "seoul-g-pb1.firebasestorage.app",
+  messagingSenderId: "441607858323",
+  appId: "1:441607858323:web:286a043c5e01c69b2e8566",
+  measurementId: "G-4Z3KPFQ8GG"
+};
+const hasRealConfig = Object.values(firebaseConfig).every(v => typeof v === 'string' && v.indexOf('여기에') < 0 && v.length > 5);
+let app=null, db=null, roomNode=null, unsubRoom=null, unsubConn=null, pushTimer=null, roomCode='',lastRemoteTs=0;
+function setStatus(t,cls){
+  var s=el('syncStatus');
+  if(s){s.className='sync-status '+(cls||'sync-info');s.textContent=t;}
+  var m=el('syncMsg');if(m&&cls==='sync-err')m.textContent=t;
+}
+function genCode(){const c='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';let s='';for(let i=0;i<5;i++)s+=c[Math.floor(Math.random()*c.length)];return s;}
+function norm(id){return String(id||'').replace(/[^A-Za-z0-9]/g,'').toUpperCase();}
+function pushNowRTDB(){
+  if(!hasRealConfig||!roomNode||window.__remoteApplying)return;
+  var p=__payloadV4(); if(!p)return;
+  p.t=Date.now();p.by=state.devId;
+  set(roomNode,p).catch(function(e){setStatus('⚠️ Firebase 저장 실패: '+(e&&e.message?e.message:e),'sync-err');});
+}
+window.FbSync={
+  configured:hasRealConfig,
+  get roomCode(){return roomCode;},
+  create(){
+    if(!hasRealConfig){alert('firebaseConfig 7줄(apiKey, authDomain, databaseURL, projectId, storageBucket, messagingSenderId, appId)을 먼저 붙여넣어 주세요. (Firebase 콘솔 → 프로젝트 설정 → 일반 → 내 앱 → Config).');return null;}
+    roomCode=genCode();
+    try{this.attach(roomCode);}catch(e){setStatus('⚠️ Firebase attach 실패: '+(e&&e.message?e.message:e),'sync-err');return null;}
+    try{pushNowRTDB();}catch(e){}
+    return roomCode;
+  },
+  join(code){
+    if(!hasRealConfig){alert('firebaseConfig 7줄을 먼저 붙여넣어 주세요.');return false;}
+    var c=norm(code); if(!c){alert('올바른 방 코드가 아닙니다.');return false;}
+    roomCode=c;
+    try{this.attach(c);}catch(e){setStatus('⚠️ Firebase attach 실패: '+(e&&e.message?e.message:e),'sync-err');return false;}
+    return true;
+  },
+  attach(code){
+    this.detach();
+    roomNode=ref(db,'/rooms/'+code);
+    unsubRoom=onValue(roomNode,function(snap){
+      var v=snap.val();
+      if(v){lastRemoteTs=v.t||0;
+        if(v.by&&v.by===state.devId)return;
+        if(v.t&& (Date.now()-v.t)>6e5)return;
+        window.__remoteApplying=true;
+        try{applyRemotePayload(v);}catch(e){console.error('[applyRemote]',e);}
+        finally{window.__remoteApplying=false;}
+      }else{
+        setStatus('☁️ Firebase 연결됨 — 방 코드 '+code+' (대기 중). 다른 기기에서 같은 코드로 참가해 주세요.','sync-info');
+      }
+    },function(err){setStatus('⚠️ Firebase 동기화 오류: '+(err&&err.message?err.message:'권한/위치 확인'),'sync-err');});
+    setStatus('☁️ Firebase 연결됨 — 방 코드: '+code+'   (이 코드를 공유하세요)','sync-ok');
+  },
+  detach(){if(unsubRoom){unsubRoom();unsubRoom=null;}if(unsubConn){unsubConn();unsubConn=null;}roomNode=null;},
+  push(){
+    if(!hasRealConfig||!roomNode||window.__remoteApplying)return;
+    if(pushTimer)clearTimeout(pushTimer);
+    pushTimer=setTimeout(pushNowRTDB,250);
+  },
+  pushNow:pushNowRTDB,
+  leave(){this.detach();roomCode='';setStatus('연결 해제됨 (다른 참가자와 동기화를 다시 시작하려면 방 만들기/참가하세요)','sync-warn');}
+};
+if(hasRealConfig){
+  try{
+    app=initializeApp(firebaseConfig);
+    db=getDatabase(app);
+    var connRef=ref(db,'.info/connected');
+    unsubConn=onValue(connRef,function(snap){
+      var online=!!snap.val();
+      if(!window.FbSync.roomCode){
+        setStatus(online?'☁️ Firebase 연결됨 — 방을 만들거나 참가하세요':'⚠️ Firebase 연결 끊김 — 재연결 중…',online?'sync-ok':'sync-warn');
+      }
+    });
+  }catch(e){setStatus('⚠️ Firebase 초기화 실패: '+(e&&e.message?e.message:e),'sync-err');}
+}else{
+  setStatus('ℹ️ Firebase 미설정 — 같은 브라우저의 다른 탭·창은 BroadcastChannel로 즉시 동기화됩니다. 다른 네트워크 기기와 동기화하려면 firebaseConfig 7줄을 붙여넣고 저장하세요.','sync-warn');
+}
+</script>
+<script type="module" src="https://static.cloudflareinsights.com/beacon.min.js/v31edd6df95cf4e85bb4c19e7a9bdbcba1788362987495" integrity="sha512-iIg7k2xntmwu6/uSb5tpc/hySgZc4eoL31yB29W6tJFo2akwjPWcEqnCEdJvGexCL0KEQwVYv5BlowfhVz26hg==" data-cf-beacon='{"version":"2024.11.0","token":"4edd5f8ec12a48cfa682ab8261b80a79","spa":2}' crossorigin="anonymous"></script>
+<script type="module" src="https://static.cloudflareinsights.com/beacon.min.js/v31edd6df95cf4e85bb4c19e7a9bdbcba1788362987495" integrity="sha512-iIg7k2xntmwu6/uSb5tpc/hySgZc4eoL31yB29W6tJFo2akwjPWcEqnCEdJvGexCL0KEQwVYv5BlowfhVz26hg==" data-cf-beacon='{"version":"2024.11.0","token":"4edd5f8ec12a48cfa682ab8261b80a79","spa":2}' crossorigin="anonymous"></script>
+</body>
+</html>
